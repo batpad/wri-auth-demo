@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WRI API Auth Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status.logged-in {
+            background-color: #e6ffe6;
+            border: 1px solid #b3ffb3;
+        }
+        .status.logged-out {
+            background-color: #fff2e6;
+            border: 1px solid #ffcc99;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>WRI API Authentication Demo</h1>
+    
+    <div id="loginStatus" class="status logged-out">
+        Not logged in
+    </div>
+
+    <button id="loginBtn" onclick="handleLogin()">Login with WRI</button>
+
+    <script>
+        const config = {
+            // Make the callback URL configurable
+            callbackUrl: 'http://localhost:3000/callback.html',
+            wriAuthUrl: 'https://api.resourcewatch.org/auth/login'
+        };
+
+        // Check token on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('wriToken');
+            updateLoginStatus(token);
+        });
+
+        function updateLoginStatus(token) {
+            const statusDiv = document.getElementById('loginStatus');
+            if (token) {
+                statusDiv.className = 'status logged-in';
+                statusDiv.textContent = 'Logged in with token: ' + token.substr(0, 10) + '...';
+            } else {
+                statusDiv.className = 'status logged-out';
+                statusDiv.textContent = 'Not logged in';
+            }
+        }
+
+        function handleLogin() {
+            // Construct the auth URL with callback
+            const authUrl = `${config.wriAuthUrl}?callbackUrl=${encodeURIComponent(config.callbackUrl)}&token=true`;
+            
+            // Open the popup
+            const popup = window.open(authUrl, 'WRI Login', 'width=600,height=700');
+            
+            // Poll for token changes
+            const checkToken = setInterval(() => {
+                const token = localStorage.getItem('wriToken');
+                if (token) {
+                    clearInterval(checkToken);
+                    updateLoginStatus(token);
+                    if (popup && !popup.closed) {
+                        popup.close();
+                    }
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WRI Auth Callback</title>
+</head>
+<body>
+    <p>Processing login...</p>
+    
+    <script>
+        // Get token from URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        
+        if (token) {
+            // Store the token
+            localStorage.setItem('wriToken', token);
+            
+            // Close this window
+            window.close();
+        } else {
+            document.body.innerHTML = '<p>Error: No token received</p>';
+        }
+    </script>
+</body>
+</html>
